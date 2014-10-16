@@ -25,5 +25,13 @@ Room.list = \
                         ReturnType=lambda x: map(Room, map(lambda y: {'room': y}, x['rooms'])), 
                         url="https://api.hipchat.com/v1/rooms/list", 
                         data=False))
+
+Room.create = classmethod(
+    partial(call_hipchat, Room, url="https://api.hipchat.com/v1/rooms/create", data=True)
+)
+Room.topic = classmethod(
+    partial(call_hipchat, ReturnType=lambda x: x['status'], url="https://api.hipchat.com/v1/rooms/topic", data=True)
+)
+
 Room.message = classmethod(partial(call_hipchat, ReturnType=MessageSentStatus, url="https://api.hipchat.com/v1/rooms/message", data=True))
 Room.show = classmethod(partial(call_hipchat, Room, url="https://api.hipchat.com/v1/rooms/show", data=False))

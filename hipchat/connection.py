@@ -30,7 +30,27 @@ def call_hipchat(cls, ReturnType, url, data=True, **kw):
         req.add_data(urlencode(kw.items()))
     if hipchat.config.proxy_server and hipchat.config.proxy_type:
         req.set_proxy(hipchat.config.proxy_server, hipchat.config.proxy_type)
-    return ReturnType(json.load(urlopen(req)))
+    try:
+        res = urlopen(req)
+    except HTTPError, e:
+        resp = "".join(e.readlines())
+        try:
+            err_resp = json.loads(resp)
+        except ValueError:
+            raise Exception(
+                "unknown error: %d response was: %s" % (
+                    e.getcode(), resp
+                ),
+            )
+        error = err_resp.get("error", {})
+        raise Exception(
+            "%d %s error: %s" % (
+                error.get("code", -1),
+                error.get("type", "unknown"),
+                error.get("message", "no message"),
+            )
+        )
+    return ReturnType(json.load(res))
 
 
 class HipChatObject(object):
